@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: C pipeline CI
 
 on:
   push:
@@ -8,16 +8,23 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
+    # 1. Klonujemy repo
     - uses: actions/checkout@v4
-    - name: configure
-      run: ./configure
-    - name: make
-      run: make
-    - name: make check
-      run: make check
-    - name: make distcheck
-      run: make distcheck
+
+    # 2. Instalujemy wymagane pakiety kompilatora
+    - name: Install build deps
+      run: sudo apt-get update && sudo apt-get install --no-install-recommends -y build-essential
+
+    # 3. Kompilacja zgodnie z README
+    - name: Build ipc-pipeline
+      run: |
+        gcc -std=c11 -Wall -Wextra -pedantic -O2 -pthread \
+            -o ipc-pipeline producer_consumer.c
+
+    # 4. Krótki test – potok z 1 KB danych z /dev/zero
+    - name: Smoke test
+      run: |
+        ./ipc-pipeline < /dev/zero | head -c 1024 > /dev/null
