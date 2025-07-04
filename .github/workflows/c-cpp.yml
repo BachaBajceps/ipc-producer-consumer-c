@@ -18,13 +18,21 @@ jobs:
     - name: Install build deps
       run: sudo apt-get update && sudo apt-get install --no-install-recommends -y build-essential
 
-    # 3. Kompilacja zgodnie z README
+    # 3. Czyscimy srodowisko przed budowaniem
+    - name: Clean up IPC resources before build
+      run: sudo ./cleanup-ipc.sh || true
+      
+    # 4. Kompilacja zgodnie z README
     - name: Build ipc-pipeline
       run: |
         gcc -std=c11 -Wall -Wextra -pedantic -O2 -pthread \
             -o ipc-pipeline producer_consumer.c
 
-    # 4. Krótki test – potok z 1 KB danych z /dev/zero
+    # 5. Krótki test – potok z 1 KB danych z /dev/zero
     - name: Smoke test
       run: |
         ./ipc-pipeline < /dev/zero | head -c 1024 > /dev/null
+        
+    # 6. Czyscimy srodowisko po budowaniu
+    - name: Clean up IPC resources after build
+      run: sudo ./cleanup-ipc.sh || true
