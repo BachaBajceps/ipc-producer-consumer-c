@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -169,7 +170,7 @@ void proces_1() {
         // Czytanie danych ze standardowego wejscia linijka po linijce
         if (!czy_z_pliku) {
             const char* komunikat_wprowadzania = "Wprowadz dane (wpisz 'koniec' aby zakonczyc):";
-            write(STDOUT_FILENO, komunikat_wprowadzania, strlen(komunikat_wprowadzania));
+            (void)write(STDOUT_FILENO, komunikat_wprowadzania, strlen(komunikat_wprowadzania));
         }
         odczytane = read(STDIN_FILENO, bufor + sizeof(size_t), ROZMIAR_SHM - sizeof(size_t));
         if (odczytane == -1) {
@@ -322,6 +323,7 @@ void proces_3() {
 
 // Handler dla procesu 1
 void handler_1(int numer_sygnalu, siginfo_t *informacje, void *kontekst) {
+    (void)kontekst;
     switch (numer_sygnalu) {
         case SIGUSR2:
             // Wyslij komunikat do procesow 2 i 3 o zakonczeniu dzialania
@@ -352,6 +354,7 @@ void handler_1(int numer_sygnalu, siginfo_t *informacje, void *kontekst) {
 
 // Handler dla procesu 2
 void handler_2(int numer_sygnalu, siginfo_t *informacje, void *kontekst) {
+    (void)kontekst;
     switch (numer_sygnalu) {
         case SIGUSR2:
             // Zakoncz dzialanie
@@ -382,6 +385,7 @@ void handler_2(int numer_sygnalu, siginfo_t *informacje, void *kontekst) {
 
 // Handler dla procesu 3
 void handler_3(int numer_sygnalu, siginfo_t *informacje, void *kontekst) {
+    (void)kontekst;
     switch (numer_sygnalu) {
         case SIGUSR2:
             // Zakoncz dzialanie
